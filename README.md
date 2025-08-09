@@ -1,0 +1,1 @@
+# WeeklyCollectionTest
