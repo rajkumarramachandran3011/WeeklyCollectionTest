@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Management App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto p-4 max-w-4xl">
+        <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">Loan Management System</h1>
+        <div id="error-message" class="hidden mb-4 p-3 bg-red-100 text-red-700 rounded"></div>
+
+        <!-- Tabs -->
+        <div class="mb-8">
+            <div class="flex border-b">
+                <button id="customer-tab" onclick="showTab('customer')" class="flex-1 py-2 px-4 text-center bg-blue-600 text-white font-semibold rounded-tl-md hover:bg-blue-700 transition">Add Customer</button>
+                <button id="payment-tab" onclick="showTab('payment')" class="flex-1 py-2 px-4 text-center bg-gray-300 text-gray-800 font-semibold hover:bg-gray-400 transition">Add Weekly Payment</button>
+                <button id="export-tab" onclick="showTab('export')" class="flex-1 py-2 px-4 text-center bg-gray-300 text-gray-800 font-semibold rounded-tr-md hover:bg-gray-400 transition">Export All</button>
+            </div>
+            <div id="export-form" class="hidden p-4 bg-white rounded-b-lg shadow">
+                <h2 class="text-xl font-semibold mb-4 text-gray-700">Export All Customer Paid Details by Date</h2>
+                <div class="flex flex-col md:flex-row md:items-end gap-4 mb-4">
+                    <input type="date" id="export-date" class="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    <input type="email" id="export-email" placeholder="Recipient Email" class="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    <button onclick="exportAllByDate('csv')" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">Export CSV</button>
+                    <button onclick="exportAllByDate('excel')" class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700 transition">Export Excel</button>
+                    <button onclick="emailExportedFile()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">Email</button>
+                </div>
+                <div id="export-status" class="text-green-700"></div>
+            </div>
+            <div id="customer-form" class="p-4 bg-white rounded-b-lg shadow">
+                <h2 class="text-xl font-semibold mb-4 text-gray-700">Add New Customer</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="text" id="customer-name" placeholder="Customer Name" class="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="number" id="loan-amount" placeholder="Loan Amount" class="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" id="contact" placeholder="Contact Number" class="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="date" id="start-date" class="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <button onclick="addCustomer()" class="mt-4 bg-blue-600 text-white p-2 rounded hover:bg-blue-700 transition">Add Customer</button>
+            </div>
+            <div id="payment-form" class="hidden p-4 bg-white rounded-b-lg shadow">
+                <h2 class="text-xl font-semibold mb-4 text-gray-700">Add Weekly Payment</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <select id="payment-customer-id" onchange="updateWeekSelect()" class="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <option value="">Select Customer</option>
+                    </select>
+                    <input type="number" id="payment-amount" placeholder="Payment Amount" class="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <input type="date" id="payment-date" class="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <input type="text" id="balance-payment" placeholder="Balance Payment" class="p-2 border rounded bg-gray-100" readonly>
+                </div>
+                <button onclick="addWeeklyPayment()" class="mt-4 bg-green-600 text-white p-2 rounded hover:bg-green-700 transition">Add Payment</button>
+            </div>
+        </div>
+
+        <!-- Customer Search/Filter (always visible) -->
+        <div class="mb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+            <input id="customer-search" type="text" placeholder="Search customers by name or contact..." class="p-2 border rounded w-full md:w-1/3 focus:outline-none focus:ring-2 focus:ring-blue-500" oninput="filterCustomersGrid()">
+        </div>
+        <div id="customer-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4"></div>
+
+        <!-- Customer Repayment Details -->
+        <div id="repayment-details" class="hidden">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold text-gray-700">Customer Repayment Details</h2>
+                <button onclick="exportAccountPaidDetails()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">Account Paid Details</button>
+            </div>
+            <div id="customer-list"></div>
+        </div>
+
+        <!-- Edit Payment Modal -->
+        <div id="edit-payment-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
+            <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+                <h3 class="text-lg font-semibold mb-4">Edit Payment</h3>
+                <input type="hidden" id="edit-customer-id">
+                <input type="hidden" id="edit-week-number">
+                <div class="grid grid-cols-1 gap-4">
+                    <input type="number" id="edit-payment-amount" placeholder="Payment Amount" class="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="date" id="edit-payment-date" class="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="mt-4 flex justify-end space-x-2">
+                    <button onclick="closeEditModal()" class="bg-gray-500 text-white p-2 rounded hover:bg-gray-600 transition">Cancel</button>
+                    <button onclick="saveEditedPayment()" class="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 transition">Save</button>
+                </div>
+            </div>
+        </div>
+
+    <script>
+        let customers = JSON.parse(localStorage.getItem('customers') || '[]');
+
+        // Export all customer paid details by date as CSV or Excel
+        function exportAllByDate(type) {
+            const date = document.getElementById('export-date').value;
+            if (!date) {
+                alert('Please select a date.');
+                return;
+            }
+            let rows = [
+                ['Customer Name', 'Contact', 'Week', 'Amount', 'Payment Date', 'Balance']
+            ];
+            customers.forEach(customer => {
+                const principal = parseFloat(customer.loanAmount) || 0;
+                const interestPaid = customer.payments
+                    .filter(payment => payment.type === 'Interest')
+                    .reduce((sum, payment) => sum + (parseFloat(payment.amount) || 0), 0);
+                const totalAmount = principal + interestPaid;
+                let runningBalance = totalAmount;
+                customer.payments.forEach(payment => {
+                    if (payment.amount && payment.paymentDate === date) {
+                        runningBalance -= parseFloat(payment.amount);
+                        rows.push([
+                            customer.name,
+                            customer.contact,
+                            payment.weekNumber,
+                            payment.amount,
+                            payment.paymentDate,
+                            runningBalance.toFixed(2)
+                        ]);
+                    } else if (payment.paymentDate && payment.paymentDate < date) {
+                        // Subtract previous payments to keep running balance accurate
+                        runningBalance -= parseFloat(payment.amount) || 0;
+                    }
+                });
+            });
+            if (rows.length === 1) {
+                alert('No paid details found for this date.');
+                return;
+            }
+            if (type === 'excel') {
+                // Simple Excel export using HTML table and data URI
+                let table = '<table><tr>' + rows[0].map(h => `<th>${h}</th>`).join('') + '</tr>';
+                for (let i = 1; i < rows.length; i++) {
+                    table += '<tr>' + rows[i].map(d => `<td>${d}</td>`).join('') + '</tr>';
+                }
+                table += '</table>';
+                const blob = new Blob([table], { type: 'application/vnd.ms-excel' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `all_paid_details_${date}.xls`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                document.getElementById('export-status').textContent = 'Excel exported successfully.';
+            } else {
+                const csvContent = rows.map(e => e.map(field => '"' + String(field).replace(/"/g, '""') + '"').join(",")).join("\r\n");
+                const blob = new Blob([csvContent], { type: 'text/csv' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `all_paid_details_${date}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                document.getElementById('export-status').textContent = 'CSV exported successfully.';
+            }
+        }
+
+        // Email exported file (opens default mail client with attachment if possible)
+        function emailExportedFile() {
+            const date = document.getElementById('export-date').value;
+            const email = document.getElementById('export-email').value.trim();
+            if (!date) {
+                alert('Please select a date.');
+                return;
+            }
+            if (!email) {
+                alert('Please enter a recipient email address.');
+                return;
+            }
+            const subject = encodeURIComponent(`All Paid Details for ${date}`);
+            const body = encodeURIComponent('Please find attached the exported file for all customer paid details for the selected date.\n\n(Download the file using Export CSV/Excel and attach it manually to this email.)');
+            // Try to open mail client
+            const mailtoLink = `mailto:${email}?subject=${subject}&body=${body}`;
+            // Create a temporary anchor to trigger mailto
+            const a = document.createElement('a');
+            a.href = mailtoLink;
+            a.style.display = 'none';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            // Fallback message for browsers that block mailto
+            setTimeout(() => {
+                // If the user is still on the page after 1 second, show a message in the export-status div
+                const statusDiv = document.getElementById('export-status');
+                if (statusDiv) {
+                    statusDiv.textContent = 'If your email client did not open, please copy and paste this into your email: ' + mailtoLink;
+                    statusDiv.classList.remove('text-green-700');
+                    statusDiv.classList.add('text-red-700');
+                }
+            }, 1000);
+        }
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCustomerSelect();
+            showTab('customer'); // Show customer tab by default
+        });
+
+        // Show error message
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = message;
+            errorDiv.classList.remove('hidden');
+            setTimeout(() => errorDiv.classList.add('hidden'), 5000);
+        }
+
+        // Toggle between tabs
+        function showTab(tab) {
+            const customerForm = document.getElementById('customer-form');
+            const paymentForm = document.getElementById('payment-form');
+            const exportForm = document.getElementById('export-form');
+            const customerTab = document.getElementById('customer-tab');
+            const paymentTab = document.getElementById('payment-tab');
+            const exportTab = document.getElementById('export-tab');
+            const repaymentDetails = document.getElementById('repayment-details');
+
+            // Hide all forms by default
+            customerForm.classList.add('hidden');
+            paymentForm.classList.add('hidden');
+            exportForm.classList.add('hidden');
+            repaymentDetails.classList.add('hidden');
+
+            // Remove highlight from all tabs
+            customerTab.classList.remove('bg-blue-600', 'text-white');
+            customerTab.classList.add('bg-gray-300', 'text-gray-800');
+            paymentTab.classList.remove('bg-blue-600', 'text-white');
+            paymentTab.classList.add('bg-gray-300', 'text-gray-800');
+            exportTab.classList.remove('bg-blue-600', 'text-white');
+            exportTab.classList.add('bg-gray-300', 'text-gray-800');
+
+            if (tab === 'customer') {
+                customerForm.classList.remove('hidden');
+                customerTab.classList.add('bg-blue-600', 'text-white');
+                customerTab.classList.remove('bg-gray-300', 'text-gray-800');
+                document.getElementById('customer-list').innerHTML = '';
+            } else if (tab === 'payment') {
+                paymentForm.classList.remove('hidden');
+                paymentTab.classList.add('bg-blue-600', 'text-white');
+                paymentTab.classList.remove('bg-gray-300', 'text-gray-800');
+            } else if (tab === 'export') {
+                exportForm.classList.remove('hidden');
+                exportTab.classList.add('bg-blue-600', 'text-white');
+                exportTab.classList.remove('bg-gray-300', 'text-gray-800');
+            }
+        }
+
+        // Add a new customer
+        function addCustomer() {
+            const name = document.getElementById('customer-name').value.trim();
+            const loanAmount = document.getElementById('loan-amount').value.trim();
+            const contact = document.getElementById('contact').value.trim();
+            const startDate = document.getElementById('start-date').value;
+
+            if (!name || !loanAmount || !contact || !startDate) {
+                showError('Please fill in all customer fields.');
+                return;
+            }
+
+            const parsedLoanAmount = parseFloat(loanAmount);
+            if (isNaN(parsedLoanAmount) || parsedLoanAmount <= 0) {
+                showError('Please enter a valid loan amount.');
+                return;
+            }
+
+            const customer = {
+                id: Date.now().toString(),
+                name,
+                loanAmount: parsedLoanAmount,
+                contact,
+                startDate,
+                payments: Array(12).fill(null).map((_, index) => ({
+                    weekNumber: index + 1,
+                    amount: '',
+                    paymentDate: '',
+                    type: index < 10 ? 'Principal' : 'Interest'
+                }))
+            };
+
+            customers.push(customer);
+            localStorage.setItem('customers', JSON.stringify(customers));
+            updateCustomerSelect();
+            document.getElementById('customer-name').value = '';
+            document.getElementById('loan-amount').value = '';
+            document.getElementById('contact').value = '';
+            document.getElementById('start-date').value = '';
+        }
+
+        // Update customer select dropdown
+        function updateCustomerSelect() {
+            const select = document.getElementById('payment-customer-id');
+            if (!select) return;
+            select.innerHTML = '<option value="">Select Customer</option>';
+            customers.forEach(customer => {
+                const option = document.createElement('option');
+                option.value = customer.id;
+                option.textContent = customer.name;
+                select.appendChild(option);
+            });
+            updateBalanceAndRepayment();
+        }
+
+        // Update week select and balance payment
+
+        // Update balance and repayment details (no week dropdown)
+        function updateBalanceAndRepayment() {
+            const customerId = document.getElementById('payment-customer-id').value;
+            const balanceInput = document.getElementById('balance-payment');
+            const repaymentDetails = document.getElementById('repayment-details');
+            balanceInput.value = '';
+
+            if (!customerId) {
+                repaymentDetails.classList.add('hidden');
+                document.getElementById('customer-list').innerHTML = '';
+                return;
+            }
+
+            const customer = customers.find(c => c.id === customerId);
+            if (!customer) {
+                repaymentDetails.classList.add('hidden');
+                document.getElementById('customer-list').innerHTML = '';
+                return;
+            }
+
+            // Calculate total amount: principal + recorded interest payments
+            const principal = parseFloat(customer.loanAmount) || 0;
+            const interestPaid = customer.payments
+                .filter(payment => payment.type === 'Interest')
+                .reduce((sum, payment) => sum + (parseFloat(payment.amount) || 0), 0);
+            const totalAmount = principal + interestPaid;
+
+            // Calculate total paid (principal + interest payments)
+            const totalPaid = customer.payments.reduce((sum, payment) => {
+                return sum + (parseFloat(payment.amount) || 0);
+            }, 0);
+
+            // Calculate balance: total amount minus total paid
+            const balance = totalAmount - totalPaid;
+            balanceInput.value = isNaN(balance) ? '₹0.00' : `₹${balance.toFixed(2)}`;
+
+            // Show repayment details for the selected customer
+            repaymentDetails.classList.remove('hidden');
+            displayCustomers(customerId);
+        }
+
+        // Ensure balance and repayment details update on customer change
+        const paymentCustomerSelect = document.getElementById('payment-customer-id');
+        if (paymentCustomerSelect) {
+            paymentCustomerSelect.addEventListener('change', updateBalanceAndRepayment);
+        }
+
+        // Add a weekly payment
+        function addWeeklyPayment() {
+            const customerId = document.getElementById('payment-customer-id').value;
+            const amount = document.getElementById('payment-amount').value.trim();
+            const paymentDate = document.getElementById('payment-date').value;
+
+            if (!customerId || !amount || !paymentDate) {
+                showError('Please fill in all payment fields.');
+                return;
+            }
+
+            const parsedAmount = parseFloat(amount);
+            if (isNaN(parsedAmount) || parsedAmount <= 0) {
+                showError('Please enter a valid payment amount.');
+                return;
+            }
+
+            // Find the first unpaid week
+            customers = customers.map(customer => {
+                if (customer.id === customerId) {
+                    const unpaidWeek = customer.payments.find(payment => !payment.amount && !payment.paymentDate);
+                    if (unpaidWeek) {
+                        customer.payments[unpaidWeek.weekNumber - 1] = {
+                            ...customer.payments[unpaidWeek.weekNumber - 1],
+                            amount: parsedAmount.toFixed(2),
+                            paymentDate
+                        };
+                    }
+                }
+                return customer;
+            });
+
+            localStorage.setItem('customers', JSON.stringify(customers));
+            // Keep the customer selected and update details
+            document.getElementById('payment-customer-id').value = customerId;
+            updateBalanceAndRepayment();
+            document.getElementById('payment-amount').value = '';
+            document.getElementById('payment-date').value = '';
+        }
+
+        // Open edit payment modal
+        function openEditModal(customerId, weekNumber) {
+            const customer = customers.find(c => c.id === customerId);
+            if (!customer) {
+                showError('Customer not found.');
+                return;
+            }
+            const payment = customer.payments[weekNumber - 1];
+            if (!payment.amount || !payment.paymentDate) {
+                showError('No payment recorded for this week.');
+                return;
+            }
+
+            document.getElementById('edit-customer-id').value = customerId;
+            document.getElementById('edit-week-number').value = weekNumber;
+            document.getElementById('edit-payment-amount').value = payment.amount;
+            document.getElementById('edit-payment-date').value = payment.paymentDate;
+            document.getElementById('edit-payment-modal').classList.remove('hidden');
+        }
+
+        // Close edit payment modal
+        function closeEditModal() {
+            document.getElementById('edit-payment-modal').classList.add('hidden');
+            document.getElementById('edit-customer-id').value = '';
+            document.getElementById('edit-week-number').value = '';
+            document.getElementById('edit-payment-amount').value = '';
+            document.getElementById('edit-payment-date').value = '';
+        }
+
+        // Save edited payment
+        function saveEditedPayment() {
+            const customerId = document.getElementById('edit-customer-id').value;
+            const weekNumber = parseInt(document.getElementById('edit-week-number').value);
+            const amount = document.getElementById('edit-payment-amount').value.trim();
+            const paymentDate = document.getElementById('edit-payment-date').value;
+
+            if (!amount || !paymentDate) {
+                showError('Please fill in all payment fields.');
+                return;
+            }
+
+            const parsedAmount = parseFloat(amount);
+            if (isNaN(parsedAmount) || parsedAmount <= 0) {
+                showError('Please enter a valid payment amount.');
+                return;
+            }
+
+            customers = customers.map(customer => {
+                if (customer.id === customerId) {
+                    customer.payments[weekNumber - 1] = {
+                        ...customer.payments[weekNumber - 1],
+                        amount: parsedAmount.toFixed(2),
+                        paymentDate
+                    };
+                }
+                return customer;
+            });
+
+            localStorage.setItem('customers', JSON.stringify(customers));
+            closeEditModal();
+            const select = document.getElementById('payment-customer-id');
+            select.value = customerId; // Restore customer selection
+            updateWeekSelect();
+        }
+
+        // Delete payment
+        function deletePayment(customerId, weekNumber) {
+            if (!confirm('Are you sure you want to delete this payment?')) {
+                return;
+            }
+
+            customers = customers.map(customer => {
+                if (customer.id === customerId) {
+                    customer.payments[weekNumber - 1] = {
+                        ...customer.payments[weekNumber - 1],
+                        amount: '',
+                        paymentDate: ''
+                    };
+                }
+                return customer;
+            });
+
+            localStorage.setItem('customers', JSON.stringify(customers));
+            const select = document.getElementById('payment-customer-id');
+            select.value = customerId; // Restore customer selection
+            updateWeekSelect();
+        }
+
+        // Display customers (specific customer or clear)
+        function displayCustomers(customerId = null) {
+            const customerList = document.getElementById('customer-list');
+            const repaymentDetails = document.getElementById('repayment-details');
+
+            if (!customerId) {
+                customerList.innerHTML = '';
+                repaymentDetails.classList.add('hidden');
+                return;
+            }
+
+            const customer = customers.find(c => c.id === customerId);
+            if (!customer) {
+                customerList.innerHTML = '<p class="text-gray-600">Customer not found.</p>';
+                repaymentDetails.classList.remove('hidden');
+                return;
+            }
+
+            const principal = parseFloat(customer.loanAmount) || 0;
+            const interestPaid = customer.payments
+                .filter(payment => payment.type === 'Interest')
+                .reduce((sum, payment) => sum + (parseFloat(payment.amount) || 0), 0);
+            const totalAmount = principal + interestPaid;
+            let runningBalance = totalAmount;
+            const totalPaid = customer.payments.reduce((sum, payment) => sum + (parseFloat(payment.amount) || 0), 0);
+            const balance = totalAmount - totalPaid;
+
+            customerList.innerHTML = `
+                <div class="mb-4 p-4 border rounded-lg shadow bg-white">
+                    <h3 class="text-lg font-semibold text-gray-800">${customer.name} (Contact: ${customer.contact})</h3>
+                    <p class="text-gray-600">Principal: ₹${principal.toFixed(2)}</p>
+                    <p class="text-gray-600">Total Interest Paid: ₹${interestPaid.toFixed(2)}</p>
+                    <p class="text-gray-600">Total Amount: ₹${totalAmount.toFixed(2)}</p>
+                    <p class="text-gray-600">Balance: ₹${isNaN(balance) ? '0.00' : balance.toFixed(2)}</p>
+                    <p class="text-gray-600">Start Date: ${customer.startDate}</p>
+                    <h4 class="font-semibold mt-2 text-gray-700">Payment Schedule:</h4>
+                    <table class="w-full mt-2 border-collapse">
+                        <thead>
+                            <tr class="bg-gray-100">
+                                <th class="border p-2 text-left">Week</th>
+                                <th class="border p-2 text-left">Amount</th>
+                                <th class="border p-2 text-left">Date</th>
+                                <th class="border p-2 text-left">Balance</th>
+                                <th class="border p-2 text-left">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${customer.payments.map(payment => {
+                                let row = '';
+                                if (payment.amount && payment.paymentDate) {
+                                    runningBalance -= parseFloat(payment.amount);
+                                }
+                                row += `<tr>`;
+                                row += `<td class="border p-2">${payment.weekNumber}</td>`;
+                                row += `<td class="border p-2">${payment.amount ? '₹' + payment.amount : '-'}</td>`;
+                                row += `<td class="border p-2">${payment.paymentDate || '-'}</td>`;
+                                row += `<td class="border p-2">₹${isNaN(runningBalance) ? '0.00' : runningBalance.toFixed(2)}</td>`;
+                                row += `<td class="border p-2">`;
+                                if (payment.amount && payment.paymentDate) {
+                                    row += `<button onclick="openEditModal('${customer.id}', ${payment.weekNumber})" class="text-blue-600 hover:underline mr-2">Edit</button>`;
+                                    row += `<button onclick="deletePayment('${customer.id}', ${payment.weekNumber})" class="text-red-600 hover:underline mr-2">Delete</button>`;
+                                    // Do not show Remove Week for filled rows
+                                } else {
+                                    // Only show Remove for blank rows
+                                    row += `<button onclick=\"removeWeek('${customer.id}', ${payment.weekNumber})\" class=\"text-yellow-600 hover:underline\">Remove</button>`;
+                                }
+                                row += `</td></tr>`;
+                                return row;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                    <button onclick="addMoreWeeks('${customer.id}')" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">Add More Weeks</button>
+                </div>
+            `;
+            repaymentDetails.classList.remove('hidden');
+        }
+        // Export all paid details for the selected customer as CSV (with Balance column)
+        function exportAccountPaidDetails() {
+            const select = document.getElementById('payment-customer-id');
+            const customerId = select && select.value;
+            if (!customerId) {
+                alert('Please select a customer to export account paid details.');
+                return;
+            }
+            const customer = customers.find(c => c.id === customerId);
+            if (!customer) {
+                alert('Customer not found.');
+                return;
+            }
+            let rows = [
+                ['Customer Name', 'Contact', 'Week', 'Amount', 'Payment Date', 'Balance']
+            ];
+            const principal = parseFloat(customer.loanAmount) || 0;
+            const interestPaid = customer.payments
+                .filter(payment => payment.type === 'Interest')
+                .reduce((sum, payment) => sum + (parseFloat(payment.amount) || 0), 0);
+            const totalAmount = principal + interestPaid;
+            let runningBalance = totalAmount;
+            customer.payments.forEach(payment => {
+                if (payment.amount && payment.paymentDate) {
+                    runningBalance -= parseFloat(payment.amount);
+                    rows.push([
+                        customer.name,
+                        customer.contact,
+                        payment.weekNumber,
+                        payment.amount,
+                        payment.paymentDate,
+                        runningBalance.toFixed(2)
+                    ]);
+                }
+            });
+            if (rows.length === 1) {
+                alert('No paid details found for this account.');
+                return;
+            }
+            const csvContent = rows.map(e => e.map(field => '"' + String(field).replace(/"/g, '""') + '"').join(",")).join("\r\n");
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `account_paid_details_${customer.name.replace(/\s+/g, '_')}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Add more weeks to the payment schedule
+        function addMoreWeeks(customerId) {
+            const weeksToAdd = 4; // Add 4 more weeks at a time
+            customers = customers.map(customer => {
+                if (customer.id === customerId) {
+                    const currentWeeks = customer.payments.length;
+                    for (let i = 0; i < weeksToAdd; i++) {
+                        customer.payments.push({
+                            weekNumber: currentWeeks + i + 1,
+                            amount: '',
+                            paymentDate: '',
+                            type: 'Interest'
+                        });
+                    }
+                }
+                return customer;
+            });
+            localStorage.setItem('customers', JSON.stringify(customers));
+            displayCustomers(customerId);
+            updateBalanceAndRepayment();
+        }
+
+        // Add this function to allow removing a week from the payment schedule
+        function removeWeek(customerId, weekNumber) {
+            if (!confirm('Are you sure you want to remove this week? This action cannot be undone.')) {
+                return;
+            }
+            customers = customers.map(customer => {
+                if (customer.id === customerId) {
+                    customer.payments = customer.payments.filter(p => p.weekNumber !== weekNumber);
+                    // Re-number the weeks
+                    customer.payments.forEach((p, idx) => p.weekNumber = idx + 1);
+                }
+                return customer;
+            });
+            localStorage.setItem('customers', JSON.stringify(customers));
+            displayCustomers(customerId);
+            updateBalanceAndRepayment();
+        }
+
+        // Filter and display customers in a grid only after search is performed
+        function filterCustomersGrid() {
+          const search = (document.getElementById('customer-search')?.value || '').toLowerCase();
+          const grid = document.getElementById('customer-grid');
+          if (!grid) return;
+          if (!search) {
+            grid.innerHTML = '';
+            return;
+          }
+          let filtered = customers.filter(c =>
+            c.name.toLowerCase().includes(search) ||
+            c.contact.toLowerCase().includes(search)
+          );
+          if (filtered.length === 0) {
+            grid.innerHTML = '<div class="text-gray-500 col-span-2">No customers found.</div>';
+            return;
+          }
+          // Table grid format
+          let table = `<table class="min-w-full border rounded-lg overflow-hidden bg-white shadow">
+            <thead class="bg-gray-100">
+              <tr>
+                <th class="border p-2 text-left">Name</th>
+                <th class="border p-2 text-left">Contact</th>
+                <th class="border p-2 text-left">Loan</th>
+                <th class="border p-2 text-left">Start Date</th>
+                <th class="border p-2 text-left">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${filtered.map(c => `
+                <tr class="hover:bg-blue-50 transition">
+                  <td class="border p-2 font-semibold text-gray-800">${c.name}</td>
+                  <td class="border p-2 text-gray-600">${c.contact}</td>
+                  <td class="border p-2 text-gray-600">₹${c.loanAmount.toFixed(2)}</td>
+                  <td class="border p-2 text-gray-600">${c.startDate}</td>
+                  <td class="border p-2">
+                    <button onclick="selectCustomerForDetails('${c.id}')" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition">Select</button>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>`;
+          grid.innerHTML = table;
+        }
+
+        // Add this function to select a customer from the grid and show details
+        function selectCustomerForDetails(customerId) {
+          document.getElementById('payment-customer-id').value = customerId;
+          updateBalanceAndRepayment();
+        }
+
+        // Clear customer grid on page load
+        document.addEventListener('DOMContentLoaded', function() {
+          filterCustomersGrid();
+        });
+        // Also call after addCustomer, removeWeek, addMoreWeeks, etc.
+    </script>
+</body>
+</html>
