@@ -3,22 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Loan Management App</title>
+    <title>Weekly Collection System</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+      body, .font-sans { font-family: 'Inter', 'Segoe UI', Arial, sans-serif; }
+    </style>
 </head>
-<body class="bg-gray-100">
-    <div class="container mx-auto p-4 max-w-4xl">
-        <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">Loan Management System</h1>
-        <div id="error-message" class="hidden mb-4 p-3 bg-red-100 text-red-700 rounded"></div>
+<body class="min-h-screen bg-gradient-to-br from-slate-100 via-blue-50 to-slate-200 font-sans">
+    <div class="container mx-auto p-6 max-w-4xl rounded-2xl shadow-2xl bg-white/90 backdrop-blur-md border border-slate-200 mt-10">
+        <h1 class="text-4xl font-bold mb-8 text-center text-slate-800 tracking-tight leading-tight">Weekly Collection System</h1>
+        <div id="error-message" class="hidden mb-4 p-3 bg-red-50 text-red-700 rounded shadow border border-red-200"></div>
 
         <!-- Tabs -->
         <div class="mb-8">
-            <div class="flex border-b">
-                <button id="customer-tab" onclick="showTab('customer')" class="flex-1 py-2 px-4 text-center bg-blue-600 text-white font-semibold rounded-tl-md hover:bg-blue-700 transition">Add Customer</button>
-                <button id="payment-tab" onclick="showTab('payment')" class="flex-1 py-2 px-4 text-center bg-gray-300 text-gray-800 font-semibold hover:bg-gray-400 transition">Add Weekly Payment</button>
-                <button id="export-tab" onclick="showTab('export')" class="flex-1 py-2 px-4 text-center bg-gray-300 text-gray-800 font-semibold rounded-tr-md hover:bg-gray-400 transition">Export All</button>
+            <div class="flex border-b bg-white/80 rounded-t-2xl overflow-hidden shadow">
+                <button id="customer-tab" onclick="showTab('customer')" class="flex-1 py-3 px-4 text-center bg-indigo-600 text-white font-semibold rounded-tl-2xl hover:bg-indigo-700 transition-all duration-200 shadow">Add Customer</button>
+                <button id="payment-tab" onclick="showTab('payment')" class="flex-1 py-3 px-4 text-center bg-slate-100 text-slate-800 font-semibold hover:bg-blue-100 transition-all duration-200">Add Weekly Payment</button>
+                <button id="export-tab" onclick="showTab('export')" class="flex-1 py-3 px-4 text-center bg-slate-100 text-slate-800 font-semibold rounded-tr-2xl hover:bg-blue-100 transition-all duration-200">Export All</button>
             </div>
-            <div id="export-form" class="hidden p-4 bg-white rounded-b-lg shadow">
+            <div id="export-form" class="hidden p-6 bg-white/80 rounded-b-2xl shadow-lg">
                 <h2 class="text-xl font-semibold mb-4 text-gray-700">Export All Customer Paid Details by Date</h2>
                 <div class="flex flex-col md:flex-row md:items-end gap-4 mb-4">
                     <input type="date" id="export-date" class="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" />
@@ -29,41 +33,94 @@
                 </div>
                 <div id="export-status" class="text-green-700"></div>
             </div>
-            <div id="customer-form" class="p-4 bg-white rounded-b-lg shadow">
+            <div id="customer-form" class="p-6 bg-white/80 rounded-b-2xl shadow-lg">
                 <h2 class="text-xl font-semibold mb-4 text-gray-700">Add New Customer</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <select id="customer-day" class="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Select Day of Week</option>
+                        <option value="SUNDAY">SUNDAY</option>
+                        <option value="MONDAY">MONDAY</option>
+                        <option value="TUESDAY">TUESDAY</option>
+                        <option value="WEDNESDAY">WEDNESDAY</option>
+                        <option value="THURSDAY">THURSDAY</option>
+                        <option value="FRIDAY">FRIDAY</option>
+                        <option value="SATURDAY">SATURDAY</option>
+                    </select>
                     <input type="text" id="customer-name" placeholder="Customer Name" class="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <input type="number" id="loan-amount" placeholder="Loan Amount" class="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <input type="text" id="contact" placeholder="Contact Number" class="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" id="customer-area" placeholder="Area" class="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <input type="date" id="start-date" class="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
-                <button onclick="addCustomer()" class="mt-4 bg-blue-600 text-white p-2 rounded hover:bg-blue-700 transition">Add Customer</button>
+                <button onclick="addCustomer()" class="mt-6 bg-gradient-to-r from-blue-500 to-purple-500 text-white p-3 rounded-lg shadow hover:from-blue-600 hover:to-purple-600 transition-all font-semibold">Add Customer</button>
             </div>
-            <div id="payment-form" class="hidden p-4 bg-white rounded-b-lg shadow">
+            <div id="payment-form" class="hidden p-6 bg-white/80 rounded-b-2xl shadow-lg">
                 <h2 class="text-xl font-semibold mb-4 text-gray-700">Add Weekly Payment</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <select id="payment-day-filter" class="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500" onchange="updatePaymentCustomerList()">
+                        <option value="">All Days</option>
+                        <option value="SUNDAY">SUNDAY</option>
+                        <option value="MONDAY">MONDAY</option>
+                        <option value="TUESDAY">TUESDAY</option>
+                        <option value="WEDNESDAY">WEDNESDAY</option>
+                        <option value="THURSDAY">THURSDAY</option>
+                        <option value="FRIDAY">FRIDAY</option>
+                        <option value="SATURDAY">SATURDAY</option>
+                    </select>
+                    <select id="payment-area-filter" class="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500" onchange="updatePaymentCustomerList()">
+                        <option value="">All Areas</option>
+                    </select>
                     <select id="payment-customer-id" onchange="updateWeekSelect()" class="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500">
                         <option value="">Select Customer</option>
                     </select>
-                    <input type="number" id="payment-amount" placeholder="Payment Amount" class="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500">
-                    <input type="date" id="payment-date" class="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <div class="flex items-center gap-2">
+                        <select id="payment-amount-dropdown" onchange="handlePaymentAmountChange()" class="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <option value="">Select Amount</option>
+                            <option value="500">500</option>
+                            <option value="1000">1000</option>
+                            <option value="1500">1500</option>
+                            <option value="2000">2000</option>
+                            <option value="2500">2500</option>
+                            <option value="3000">3000</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        <input type="number" id="payment-amount" placeholder="Enter Amount" class="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500 hidden" min="1">
+                    </div>
+                    <select id="payment-mode" class="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <option value="">Select Payment Mode</option>
+                        <option value="CASH">CASH</option>
+                        <option value="UPI">UPI</option>
+                    </select>
+                    <input type="date" id="payment-date" class="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500" oninput="validatePaymentDateByDay()">
                     <input type="text" id="balance-payment" placeholder="Balance Payment" class="p-2 border rounded bg-gray-100" readonly>
                 </div>
-                <button onclick="addWeeklyPayment()" class="mt-4 bg-green-600 text-white p-2 rounded hover:bg-green-700 transition">Add Payment</button>
+                <button onclick="addWeeklyPayment()" class="mt-6 bg-gradient-to-r from-green-500 to-blue-500 text-white p-3 rounded-lg shadow hover:from-green-600 hover:to-blue-600 transition-all font-semibold">Add Payment</button>
             </div>
         </div>
 
         <!-- Customer Search/Filter (always visible) -->
         <div class="mb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-            <input id="customer-search" type="text" placeholder="Search customers by name or contact..." class="p-2 border rounded w-full md:w-1/3 focus:outline-none focus:ring-2 focus:ring-blue-500" oninput="filterCustomersGrid()">
+            <div class="flex gap-2 w-full md:w-1/3">
+                <select id="day-filter" class="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="filterCustomersGrid()">
+                    <option value="">All Days</option>
+                    <option value="SUNDAY">SUNDAY</option>
+                    <option value="MONDAY">MONDAY</option>
+                    <option value="TUESDAY">TUESDAY</option>
+                    <option value="WEDNESDAY">WEDNESDAY</option>
+                    <option value="THURSDAY">THURSDAY</option>
+                    <option value="FRIDAY">FRIDAY</option>
+                    <option value="SATURDAY">SATURDAY</option>
+                </select>
+                <input id="customer-search" type="text" placeholder="Search customers by name or contact..." class="p-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500" oninput="filterCustomersGrid()">
+            </div>
         </div>
-        <div id="customer-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4"></div>
+        <div id="customer-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8"></div>
 
         <!-- Customer Repayment Details -->
         <div id="repayment-details" class="hidden">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xl font-semibold text-gray-700">Customer Repayment Details</h2>
-                <button onclick="exportAccountPaidDetails()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">Account Paid Details</button>
+                <button onclick="exportAccountPaidDetails()" class="bg-gradient-to-r from-green-500 to-blue-500 text-white px-4 py-2 rounded-lg shadow hover:from-green-600 hover:to-blue-600 transition-all font-semibold">Account Paid Details</button>
             </div>
             <div id="customer-list"></div>
         </div>
@@ -96,7 +153,7 @@
                 return;
             }
             let rows = [
-                ['Customer Name', 'Contact', 'Week', 'Amount', 'Payment Date', 'Balance']
+                ['Customer Name', 'Contact', 'Week', 'Amount', 'Payment Date', 'Mode', 'Balance']
             ];
             customers.forEach(customer => {
                 const principal = parseFloat(customer.loanAmount) || 0;
@@ -114,6 +171,7 @@
                             payment.weekNumber,
                             payment.amount,
                             payment.paymentDate,
+                            payment.mode || '-',
                             runningBalance.toFixed(2)
                         ]);
                     } else if (payment.paymentDate && payment.paymentDate < date) {
@@ -223,27 +281,28 @@
             exportForm.classList.add('hidden');
             repaymentDetails.classList.add('hidden');
 
-            // Remove highlight from all tabs
-            customerTab.classList.remove('bg-blue-600', 'text-white');
-            customerTab.classList.add('bg-gray-300', 'text-gray-800');
-            paymentTab.classList.remove('bg-blue-600', 'text-white');
-            paymentTab.classList.add('bg-gray-300', 'text-gray-800');
-            exportTab.classList.remove('bg-blue-600', 'text-white');
-            exportTab.classList.add('bg-gray-300', 'text-gray-800');
+            // Remove highlight from all tabs (reset to inactive)
+            customerTab.classList.remove('bg-indigo-600', 'text-white');
+            customerTab.classList.add('bg-slate-100', 'text-slate-800');
+            paymentTab.classList.remove('bg-indigo-600', 'text-white');
+            paymentTab.classList.add('bg-slate-100', 'text-slate-800');
+            exportTab.classList.remove('bg-indigo-600', 'text-white');
+            exportTab.classList.add('bg-slate-100', 'text-slate-800');
 
+            // Set active tab color (consistent for all)
             if (tab === 'customer') {
                 customerForm.classList.remove('hidden');
-                customerTab.classList.add('bg-blue-600', 'text-white');
-                customerTab.classList.remove('bg-gray-300', 'text-gray-800');
+                customerTab.classList.add('bg-indigo-600', 'text-white');
+                customerTab.classList.remove('bg-slate-100', 'text-slate-800');
                 document.getElementById('customer-list').innerHTML = '';
             } else if (tab === 'payment') {
                 paymentForm.classList.remove('hidden');
-                paymentTab.classList.add('bg-blue-600', 'text-white');
-                paymentTab.classList.remove('bg-gray-300', 'text-gray-800');
+                paymentTab.classList.add('bg-indigo-600', 'text-white');
+                paymentTab.classList.remove('bg-slate-100', 'text-slate-800');
             } else if (tab === 'export') {
                 exportForm.classList.remove('hidden');
-                exportTab.classList.add('bg-blue-600', 'text-white');
-                exportTab.classList.remove('bg-gray-300', 'text-gray-800');
+                exportTab.classList.add('bg-indigo-600', 'text-white');
+                exportTab.classList.remove('bg-slate-100', 'text-slate-800');
             }
         }
 
@@ -252,11 +311,32 @@
             const name = document.getElementById('customer-name').value.trim();
             const loanAmount = document.getElementById('loan-amount').value.trim();
             const contact = document.getElementById('contact').value.trim();
+            const area = document.getElementById('customer-area').value.trim();
             const startDate = document.getElementById('start-date').value;
+            // Add a day picker for new customers
+            const dayOfWeek = document.getElementById('customer-day') ? document.getElementById('customer-day').value : '';
 
             if (!name || !loanAmount || !contact || !startDate) {
                 showError('Please fill in all customer fields.');
                 return;
+            }
+
+            // Validate start date matches selected day of week
+            if (dayOfWeek) {
+                const jsDayIndex = {
+                    'SUNDAY': 0,
+                    'MONDAY': 1,
+                    'TUESDAY': 2,
+                    'WEDNESDAY': 3,
+                    'THURSDAY': 4,
+                    'FRIDAY': 5,
+                    'SATURDAY': 6
+                }[dayOfWeek];
+                const inputDate = new Date(startDate);
+                if (inputDate.getDay() !== jsDayIndex) {
+                    showError('Start Date must be a ' + dayOfWeek + '.');
+                    return;
+                }
             }
 
             const parsedLoanAmount = parseFloat(loanAmount);
@@ -270,7 +350,9 @@
                 name,
                 loanAmount: parsedLoanAmount,
                 contact,
+                area,
                 startDate,
+                dayOfWeek,
                 payments: Array(12).fill(null).map((_, index) => ({
                     weekNumber: index + 1,
                     amount: '',
@@ -285,13 +367,16 @@
             document.getElementById('customer-name').value = '';
             document.getElementById('loan-amount').value = '';
             document.getElementById('contact').value = '';
+            document.getElementById('customer-area').value = '';
             document.getElementById('start-date').value = '';
+            if (document.getElementById('customer-day')) document.getElementById('customer-day').value = '';
         }
 
-        // Update customer select dropdown
+        // Update customer select dropdown (all customers, for consistency)
         function updateCustomerSelect() {
             const select = document.getElementById('payment-customer-id');
             if (!select) return;
+            const prevValue = select.value;
             select.innerHTML = '<option value="">Select Customer</option>';
             customers.forEach(customer => {
                 const option = document.createElement('option');
@@ -299,7 +384,66 @@
                 option.textContent = customer.name;
                 select.appendChild(option);
             });
+            updatePaymentCustomerList();
+            // Only update balance and repayment if the selected customer still exists
+            if (customers.some(c => c.id === prevValue)) {
+                select.value = prevValue;
+                updateBalanceAndRepayment();
+            } else {
+                select.value = '';
+                document.getElementById('balance-payment').value = '';
+                document.getElementById('repayment-details').classList.add('hidden');
+                document.getElementById('customer-list').innerHTML = '';
+            }
+        }
+
+        // Update the customer dropdown in Add Weekly Payment tab based on selected day and area
+        function updatePaymentCustomerList() {
+            const dayFilter = document.getElementById('payment-day-filter');
+            const areaFilter = document.getElementById('payment-area-filter');
+            const select = document.getElementById('payment-customer-id');
+            if (!select || !dayFilter || !areaFilter) return;
+            const selectedDay = dayFilter.value;
+            const selectedArea = areaFilter.value;
+            const prevValue = select.value;
+            select.innerHTML = '<option value="">Select Customer</option>';
+            let filteredCustomers = customers;
+            if (selectedDay) {
+                filteredCustomers = filteredCustomers.filter(c => c.dayOfWeek === selectedDay);
+            }
+            if (selectedArea) {
+                filteredCustomers = filteredCustomers.filter(c => c.area === selectedArea);
+            }
+            filteredCustomers.forEach(customer => {
+                const option = document.createElement('option');
+                option.value = customer.id;
+                option.textContent = customer.name;
+                select.appendChild(option);
+            });
+            // Restore previous selection if still present
+            if (filteredCustomers.some(c => c.id === prevValue)) {
+                select.value = prevValue;
+            } else {
+                select.value = '';
+            }
             updateBalanceAndRepayment();
+            // Update area filter options dynamically
+            updateAreaFilterOptions();
+        }
+
+        // Populate area filter dropdown with unique areas from customers
+        function updateAreaFilterOptions() {
+            const areaFilter = document.getElementById('payment-area-filter');
+            if (!areaFilter) return;
+            const current = areaFilter.value;
+            const areas = Array.from(new Set(customers.map(c => c.area).filter(a => a && a.trim() !== '')));
+            areaFilter.innerHTML = '<option value="">All Areas</option>' + areas.map(a => `<option value="${a}">${a}</option>`).join('');
+            // Restore previous selection if still present
+            if (areas.includes(current)) {
+                areaFilter.value = current;
+            } else {
+                areaFilter.value = '';
+            }
         }
 
         // Update week select and balance payment
@@ -354,10 +498,18 @@
         // Add a weekly payment
         function addWeeklyPayment() {
             const customerId = document.getElementById('payment-customer-id').value;
-            const amount = document.getElementById('payment-amount').value.trim();
+            const dropdown = document.getElementById('payment-amount-dropdown');
+            const amountInput = document.getElementById('payment-amount');
+            const paymentMode = document.getElementById('payment-mode').value;
+            let amount = '';
+            if (dropdown.value === 'Other') {
+                amount = amountInput.value.trim();
+            } else {
+                amount = dropdown.value;
+            }
             const paymentDate = document.getElementById('payment-date').value;
 
-            if (!customerId || !amount || !paymentDate) {
+            if (!customerId || !amount || !paymentDate || !paymentMode) {
                 showError('Please fill in all payment fields.');
                 return;
             }
@@ -376,7 +528,8 @@
                         customer.payments[unpaidWeek.weekNumber - 1] = {
                             ...customer.payments[unpaidWeek.weekNumber - 1],
                             amount: parsedAmount.toFixed(2),
-                            paymentDate
+                            paymentDate,
+                            mode: paymentMode
                         };
                     }
                 }
@@ -387,8 +540,25 @@
             // Keep the customer selected and update details
             document.getElementById('payment-customer-id').value = customerId;
             updateBalanceAndRepayment();
-            document.getElementById('payment-amount').value = '';
+            dropdown.value = '';
+            amountInput.value = '';
+            amountInput.classList.add('hidden');
             document.getElementById('payment-date').value = '';
+            document.getElementById('payment-mode').value = '';
+        }
+
+        // Show/hide custom amount input based on dropdown
+        function handlePaymentAmountChange() {
+            const dropdown = document.getElementById('payment-amount-dropdown');
+            const amountInput = document.getElementById('payment-amount');
+            if (dropdown.value === 'Other') {
+                amountInput.classList.remove('hidden');
+                amountInput.value = '';
+                amountInput.focus();
+            } else {
+                amountInput.classList.add('hidden');
+                amountInput.value = '';
+            }
         }
 
         // Open edit payment modal
@@ -507,20 +677,24 @@
             const balance = totalAmount - totalPaid;
 
             customerList.innerHTML = `
-                <div class="mb-4 p-4 border rounded-lg shadow bg-white">
-                    <h3 class="text-lg font-semibold text-gray-800">${customer.name} (Contact: ${customer.contact})</h3>
+                <div class="mb-4 p-6 border rounded-2xl shadow-lg bg-white/90 hover:shadow-2xl transition-all duration-200">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-lg font-semibold text-gray-800">${customer.name} (Contact: ${customer.contact})</h3>
+                        <button onclick="deleteCustomer('${customer.id}')" class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition ml-4">Delete Customer</button>
+                    </div>
                     <p class="text-gray-600">Principal: ₹${principal.toFixed(2)}</p>
                     <p class="text-gray-600">Total Interest Paid: ₹${interestPaid.toFixed(2)}</p>
                     <p class="text-gray-600">Total Amount: ₹${totalAmount.toFixed(2)}</p>
                     <p class="text-gray-600">Balance: ₹${isNaN(balance) ? '0.00' : balance.toFixed(2)}</p>
                     <p class="text-gray-600">Start Date: ${customer.startDate}</p>
                     <h4 class="font-semibold mt-2 text-gray-700">Payment Schedule:</h4>
-                    <table class="w-full mt-2 border-collapse">
+                    <table class="w-full mt-4 border-collapse rounded-xl overflow-hidden shadow">
                         <thead>
-                            <tr class="bg-gray-100">
+                            <tr class="bg-gradient-to-r from-blue-100 to-purple-100">
                                 <th class="border p-2 text-left">Week</th>
                                 <th class="border p-2 text-left">Amount</th>
                                 <th class="border p-2 text-left">Date</th>
+                                <th class="border p-2 text-left">Mode</th>
                                 <th class="border p-2 text-left">Balance</th>
                                 <th class="border p-2 text-left">Actions</th>
                             </tr>
@@ -531,30 +705,49 @@
                                 if (payment.amount && payment.paymentDate) {
                                     runningBalance -= parseFloat(payment.amount);
                                 }
-                                row += `<tr>`;
+                                row += `<tr class="hover:bg-blue-50 transition">`;
                                 row += `<td class="border p-2">${payment.weekNumber}</td>`;
                                 row += `<td class="border p-2">${payment.amount ? '₹' + payment.amount : '-'}</td>`;
                                 row += `<td class="border p-2">${payment.paymentDate || '-'}</td>`;
+                                row += `<td class="border p-2">${payment.mode || '-'}</td>`;
                                 row += `<td class="border p-2">₹${isNaN(runningBalance) ? '0.00' : runningBalance.toFixed(2)}</td>`;
                                 row += `<td class="border p-2">`;
                                 if (payment.amount && payment.paymentDate) {
-                                    row += `<button onclick="openEditModal('${customer.id}', ${payment.weekNumber})" class="text-blue-600 hover:underline mr-2">Edit</button>`;
-                                    row += `<button onclick="deletePayment('${customer.id}', ${payment.weekNumber})" class="text-red-600 hover:underline mr-2">Delete</button>`;
-                                    // Do not show Remove Week for filled rows
+                                    row += `<button onclick=\"openEditModal('${customer.id}', ${payment.weekNumber})\" class=\"text-blue-600 hover:underline mr-2\">Edit</button>`;
+                                    row += `<button onclick=\"deletePayment('${customer.id}', ${payment.weekNumber})\" class=\"text-red-600 hover:underline mr-2\">Delete</button>`;
                                 } else {
-                                    // Only show Remove for blank rows
-                                    row += `<button onclick=\"removeWeek('${customer.id}', ${payment.weekNumber})\" class=\"text-yellow-600 hover:underline\">Remove</button>`;
+                                    row += `<button onclick=\\"removeWeek('${customer.id}', ${payment.weekNumber})\\" class=\\"text-yellow-600 hover:underline\\">Remove</button>`;
                                 }
                                 row += `</td></tr>`;
                                 return row;
                             }).join('')}
                         </tbody>
                     </table>
-                    <button onclick="addMoreWeeks('${customer.id}')" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">Add More Weeks</button>
+                    <button onclick="addMoreWeeks('${customer.id}')" class="mt-6 bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 rounded-lg shadow hover:from-blue-600 hover:to-purple-600 transition-all font-semibold">Add More Weeks</button>
                 </div>
             `;
             repaymentDetails.classList.remove('hidden');
-        }
+        // ...existing code...
+}
+
+// Delete a customer and all their data (global scope)
+function deleteCustomer(customerId) {
+    if (!confirm('Are you sure you want to delete this customer and all their data? This action cannot be undone.')) {
+        return;
+    }
+    customers = customers.filter(c => c.id !== customerId);
+    localStorage.setItem('customers', JSON.stringify(customers));
+    // Clear repayment details and update UI
+    document.getElementById('repayment-details').classList.add('hidden');
+    document.getElementById('customer-list').innerHTML = '';
+    // Clear selection in payment-customer-id if the deleted customer was selected
+    const paymentSelect = document.getElementById('payment-customer-id');
+    if (paymentSelect && paymentSelect.value === customerId) {
+        paymentSelect.value = '';
+    }
+    updateCustomerSelect();
+    filterCustomersGrid();
+}
         // Export all paid details for the selected customer as CSV (with Balance column)
         function exportAccountPaidDetails() {
             const select = document.getElementById('payment-customer-id');
@@ -569,7 +762,7 @@
                 return;
             }
             let rows = [
-                ['Customer Name', 'Contact', 'Week', 'Amount', 'Payment Date', 'Balance']
+                ['Customer Name', 'Contact', 'Week', 'Amount', 'Payment Date', 'Mode', 'Balance']
             ];
             const principal = parseFloat(customer.loanAmount) || 0;
             const interestPaid = customer.payments
@@ -586,6 +779,7 @@
                         payment.weekNumber,
                         payment.amount,
                         payment.paymentDate,
+                        payment.mode || '-',
                         runningBalance.toFixed(2)
                     ]);
                 }
@@ -649,16 +843,24 @@
         // Filter and display customers in a grid only after search is performed
         function filterCustomersGrid() {
           const search = (document.getElementById('customer-search')?.value || '').toLowerCase();
+          const day = document.getElementById('day-filter')?.value || '';
           const grid = document.getElementById('customer-grid');
           if (!grid) return;
-          if (!search) {
+          if (!search && !day) {
             grid.innerHTML = '';
             return;
           }
-          let filtered = customers.filter(c =>
-            c.name.toLowerCase().includes(search) ||
-            c.contact.toLowerCase().includes(search)
-          );
+          let filtered = customers.filter(c => {
+            let match = true;
+            if (search) {
+              match = c.name.toLowerCase().includes(search) || c.contact.toLowerCase().includes(search);
+            }
+            // Assume customer has a 'dayOfWeek' property; if not, skip day filter
+            if (day && c.dayOfWeek) {
+              match = match && c.dayOfWeek === day;
+            }
+            return match;
+          });
           if (filtered.length === 0) {
             grid.innerHTML = '<div class="text-gray-500 col-span-2">No customers found.</div>';
             return;
@@ -671,6 +873,7 @@
                 <th class="border p-2 text-left">Contact</th>
                 <th class="border p-2 text-left">Loan</th>
                 <th class="border p-2 text-left">Start Date</th>
+                <th class="border p-2 text-left">Day</th>
                 <th class="border p-2 text-left">Action</th>
               </tr>
             </thead>
@@ -681,14 +884,31 @@
                   <td class="border p-2 text-gray-600">${c.contact}</td>
                   <td class="border p-2 text-gray-600">₹${c.loanAmount.toFixed(2)}</td>
                   <td class="border p-2 text-gray-600">${c.startDate}</td>
-                  <td class="border p-2">
+                  <td class="border p-2 text-gray-600">${c.dayOfWeek || '-'}</td>
+                  <td class="border p-2 flex gap-2">
                     <button onclick="selectCustomerForDetails('${c.id}')" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition">Select</button>
+                    <button onclick="payForCustomer('${c.id}')" class="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 transition">Pay</button>
                   </td>
                 </tr>
               `).join('')}
             </tbody>
           </table>`;
           grid.innerHTML = table;
+        // Pay button handler: select customer, switch to payment tab, and scroll to payment form
+        function payForCustomer(customerId) {
+          // Set the customer in the payment dropdown
+          document.getElementById('payment-customer-id').value = customerId;
+          updateBalanceAndRepayment();
+          // Switch to payment tab
+          showTab('payment');
+          // Scroll to payment form
+          setTimeout(() => {
+            const paymentForm = document.getElementById('payment-form');
+            if (paymentForm) {
+              paymentForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+          }, 100);
+        }
         }
 
         // Add this function to select a customer from the grid and show details
@@ -702,6 +922,29 @@
           filterCustomersGrid();
         });
         // Also call after addCustomer, removeWeek, addMoreWeeks, etc.
+
+        function validatePaymentDateByDay() {
+            const dayDropdown = document.getElementById('payment-day-filter');
+            const dateInput = document.getElementById('payment-date');
+            const selectedDay = dayDropdown.value;
+            const dateValue = dateInput.value;
+            if (!selectedDay || !dateValue) return;
+            // Get JS day index: 0=Sunday, 1=Monday, ... 6=Saturday
+            const jsDayIndex = {
+                'SUNDAY': 0,
+                'MONDAY': 1,
+                'TUESDAY': 2,
+                'WEDNESDAY': 3,
+                'THURSDAY': 4,
+                'FRIDAY': 5,
+                'SATURDAY': 6
+            }[selectedDay];
+            const inputDate = new Date(dateValue);
+            if (inputDate.getDay() !== jsDayIndex) {
+                showError('Please select a date that is a ' + selectedDay + '.');
+                dateInput.value = '';
+            }
+        }
     </script>
 </body>
 </html>
