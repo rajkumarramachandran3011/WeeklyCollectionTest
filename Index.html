@@ -11,18 +11,18 @@
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-slate-100 via-blue-50 to-slate-200 font-sans">
-    <div class="container mx-auto p-6 max-w-4xl rounded-2xl shadow-2xl bg-white/90 backdrop-blur-md border border-slate-200 mt-10">
-        <h1 class="text-4xl font-bold mb-8 text-center text-slate-800 tracking-tight leading-tight">Weekly Collection System</h1>
-        <div id="error-message" class="hidden mb-4 p-3 bg-red-50 text-red-700 rounded shadow border border-red-200"></div>
+    <div class="container mx-auto p-2 sm:p-4 md:p-6 max-w-md md:max-w-2xl lg:max-w-4xl rounded-2xl shadow-2xl bg-white/95 backdrop-blur-md border border-slate-200 mt-2 md:mt-10 min-h-[90vh] flex flex-col">
+        <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-8 text-center text-slate-800 tracking-tight leading-tight">Weekly Collection System</h1>
+        <div id="error-message" class="hidden mb-2 sm:mb-4 p-2 sm:p-3 bg-red-50 text-red-700 rounded shadow border border-red-200 text-sm sm:text-base"></div>
 
         <!-- Tabs -->
-        <div class="mb-8">
-            <div class="flex border-b bg-white/80 rounded-t-2xl overflow-hidden shadow">
-                <button id="customer-tab" onclick="showTab('customer')" class="flex-1 py-3 px-4 text-center bg-indigo-600 text-white font-semibold rounded-tl-2xl hover:bg-indigo-700 transition-all duration-200 shadow">Add Customer</button>
-                <button id="payment-tab" onclick="showTab('payment')" class="flex-1 py-3 px-4 text-center bg-slate-100 text-slate-800 font-semibold hover:bg-blue-100 transition-all duration-200">Add Weekly Payment</button>
-                <button id="export-tab" onclick="showTab('export')" class="flex-1 py-3 px-4 text-center bg-slate-100 text-slate-800 font-semibold rounded-tr-2xl hover:bg-blue-100 transition-all duration-200">Export All</button>
+        <div class="mb-4 sm:mb-8">
+            <div class="flex border-b bg-white/80 rounded-t-2xl overflow-hidden shadow text-xs sm:text-base">
+                <button id="customer-tab" onclick="showTab('customer')" class="flex-1 py-2 sm:py-3 px-2 sm:px-4 text-center bg-indigo-600 text-white font-semibold rounded-tl-2xl hover:bg-indigo-700 transition-all duration-200 shadow">Add Customer</button>
+                <button id="payment-tab" onclick="showTab('payment')" class="flex-1 py-2 sm:py-3 px-2 sm:px-4 text-center bg-slate-100 text-slate-800 font-semibold hover:bg-blue-100 transition-all duration-200">Add Weekly Payment</button>
+                <button id="export-tab" onclick="showTab('export')" class="flex-1 py-2 sm:py-3 px-2 sm:px-4 text-center bg-slate-100 text-slate-800 font-semibold rounded-tr-2xl hover:bg-blue-100 transition-all duration-200">Export All</button>
             </div>
-            <div id="export-form" class="hidden p-6 bg-white/80 rounded-b-2xl shadow-lg">
+            <div id="export-form" class="hidden p-4 sm:p-6 bg-white/80 rounded-b-2xl shadow-lg">
                 <h2 class="text-xl font-semibold mb-4 text-gray-700">Export All Customer Paid Details by Date</h2>
                 <div class="flex flex-col md:flex-row md:items-end gap-4 mb-4">
                     <input type="date" id="export-date" class="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" />
@@ -33,9 +33,9 @@
                 </div>
                 <div id="export-status" class="text-green-700"></div>
             </div>
-            <div id="customer-form" class="p-6 bg-white/80 rounded-b-2xl shadow-lg">
+            <div id="customer-form" class="p-4 sm:p-6 bg-white/80 rounded-b-2xl shadow-lg">
                 <h2 class="text-xl font-semibold mb-4 text-gray-700">Add New Customer</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     <select id="customer-day" class="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="">Select Day of Week</option>
                         <option value="SUNDAY">SUNDAY</option>
@@ -52,11 +52,11 @@
                     <input type="text" id="customer-area" placeholder="Area" class="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <input type="date" id="start-date" class="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
-                <button onclick="addCustomer()" class="mt-6 bg-gradient-to-r from-blue-500 to-purple-500 text-white p-3 rounded-lg shadow hover:from-blue-600 hover:to-purple-600 transition-all font-semibold">Add Customer</button>
+                <button onclick="addCustomer()" class="mt-4 sm:mt-6 bg-gradient-to-r from-blue-500 to-purple-500 text-white p-3 rounded-lg shadow hover:from-blue-600 hover:to-purple-600 transition-all font-semibold w-full">Add Customer</button>
             </div>
-            <div id="payment-form" class="hidden p-6 bg-white/80 rounded-b-2xl shadow-lg">
+            <div id="payment-form" class="hidden p-4 sm:p-6 bg-white/80 rounded-b-2xl shadow-lg">
                 <h2 class="text-xl font-semibold mb-4 text-gray-700">Add Weekly Payment</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     <select id="payment-day-filter" class="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500" onchange="updatePaymentCustomerList()">
                         <option value="">All Days</option>
                         <option value="SUNDAY">SUNDAY</option>
@@ -94,13 +94,13 @@
                     <input type="date" id="payment-date" class="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500" oninput="validatePaymentDateByDay()">
                     <input type="text" id="balance-payment" placeholder="Balance Payment" class="p-2 border rounded bg-gray-100" readonly>
                 </div>
-                <button onclick="addWeeklyPayment()" class="mt-6 bg-gradient-to-r from-green-500 to-blue-500 text-white p-3 rounded-lg shadow hover:from-green-600 hover:to-blue-600 transition-all font-semibold">Add Payment</button>
+                <button onclick="addWeeklyPayment()" class="mt-4 sm:mt-6 bg-gradient-to-r from-green-500 to-blue-500 text-white p-3 rounded-lg shadow hover:from-green-600 hover:to-blue-600 transition-all font-semibold w-full">Add Payment</button>
             </div>
         </div>
 
         <!-- Customer Search/Filter (always visible) -->
-        <div class="mb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-            <div class="flex gap-2 w-full md:w-1/3">
+        <div class="mb-2 sm:mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div class="flex gap-2 w-full sm:w-1/3">
                 <select id="day-filter" class="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="filterCustomersGrid()">
                     <option value="">All Days</option>
                     <option value="SUNDAY">SUNDAY</option>
@@ -114,20 +114,20 @@
                 <input id="customer-search" type="text" placeholder="Search customers by name or contact..." class="p-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500" oninput="filterCustomersGrid()">
             </div>
         </div>
-        <div id="customer-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8"></div>
+        <div id="customer-grid" class="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 mb-4 sm:mb-8"></div>
 
         <!-- Customer Repayment Details -->
-        <div id="repayment-details" class="hidden">
-            <div class="flex justify-between items-center mb-4">
+        <div id="repayment-details" class="hidden mt-2 sm:mt-4">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 sm:mb-4 gap-2">
                 <h2 class="text-xl font-semibold text-gray-700">Customer Repayment Details</h2>
-                <button onclick="exportAccountPaidDetails()" class="bg-gradient-to-r from-green-500 to-blue-500 text-white px-4 py-2 rounded-lg shadow hover:from-green-600 hover:to-blue-600 transition-all font-semibold">Account Paid Details</button>
+                <button onclick="exportAccountPaidDetails()" class="bg-gradient-to-r from-green-500 to-blue-500 text-white px-4 py-2 rounded-lg shadow hover:from-green-600 hover:to-blue-600 transition-all font-semibold w-full sm:w-auto">Account Paid Details</button>
             </div>
             <div id="customer-list"></div>
         </div>
 
         <!-- Edit Payment Modal -->
-        <div id="edit-payment-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
-            <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+        <div id="edit-payment-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white p-4 sm:p-6 rounded-lg shadow-lg w-[95vw] max-w-xs sm:max-w-md mx-2">
                 <h3 class="text-lg font-semibold mb-4">Edit Payment</h3>
                 <input type="hidden" id="edit-customer-id">
                 <input type="hidden" id="edit-week-number">
@@ -135,9 +135,9 @@
                     <input type="number" id="edit-payment-amount" placeholder="Payment Amount" class="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <input type="date" id="edit-payment-date" class="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
-                <div class="mt-4 flex justify-end space-x-2">
-                    <button onclick="closeEditModal()" class="bg-gray-500 text-white p-2 rounded hover:bg-gray-600 transition">Cancel</button>
-                    <button onclick="saveEditedPayment()" class="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 transition">Save</button>
+                <div class="mt-4 flex flex-col sm:flex-row justify-end gap-2">
+                    <button onclick="closeEditModal()" class="bg-gray-500 text-white p-2 rounded hover:bg-gray-600 transition w-full sm:w-auto">Cancel</button>
+                    <button onclick="saveEditedPayment()" class="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 transition w-full sm:w-auto">Save</button>
                 </div>
             </div>
         </div>
@@ -677,7 +677,7 @@
             const balance = totalAmount - totalPaid;
 
             customerList.innerHTML = `
-                <div class="mb-4 p-6 border rounded-2xl shadow-lg bg-white/90 hover:shadow-2xl transition-all duration-200">
+            <div class="mb-2 sm:mb-4 p-3 sm:p-6 border rounded-2xl shadow-lg bg-white/95 hover:shadow-2xl transition-all duration-200">
                     <div class="flex justify-between items-center">
                         <h3 class="text-lg font-semibold text-gray-800">${customer.name} (Contact: ${customer.contact})</h3>
                         <button onclick="deleteCustomer('${customer.id}')" class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition ml-4">Delete Customer</button>
@@ -688,7 +688,7 @@
                     <p class="text-gray-600">Balance: ₹${isNaN(balance) ? '0.00' : balance.toFixed(2)}</p>
                     <p class="text-gray-600">Start Date: ${customer.startDate}</p>
                     <h4 class="font-semibold mt-2 text-gray-700">Payment Schedule:</h4>
-                    <table class="w-full mt-4 border-collapse rounded-xl overflow-hidden shadow">
+                    <table class="w-full mt-2 sm:mt-4 border-collapse rounded-xl overflow-hidden shadow text-xs sm:text-base">
                         <thead>
                             <tr class="bg-gradient-to-r from-blue-100 to-purple-100">
                                 <th class="border p-2 text-left">Week</th>
@@ -723,7 +723,7 @@
                             }).join('')}
                         </tbody>
                     </table>
-                    <button onclick="addMoreWeeks('${customer.id}')" class="mt-6 bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 rounded-lg shadow hover:from-blue-600 hover:to-purple-600 transition-all font-semibold">Add More Weeks</button>
+                    <button onclick="addMoreWeeks('${customer.id}')" class="mt-4 sm:mt-6 bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 rounded-lg shadow hover:from-blue-600 hover:to-purple-600 transition-all font-semibold w-full">Add More Weeks</button>
                 </div>
             `;
             repaymentDetails.classList.remove('hidden');
@@ -866,7 +866,7 @@ function deleteCustomer(customerId) {
             return;
           }
           // Table grid format
-          let table = `<table class="min-w-full border rounded-lg overflow-hidden bg-white shadow">
+          let table = `<table class="min-w-full border rounded-lg overflow-hidden bg-white shadow text-xs sm:text-base">
             <thead class="bg-gray-100">
               <tr>
                 <th class="border p-2 text-left">Name</th>
@@ -885,41 +885,42 @@ function deleteCustomer(customerId) {
                   <td class="border p-2 text-gray-600">₹${c.loanAmount.toFixed(2)}</td>
                   <td class="border p-2 text-gray-600">${c.startDate}</td>
                   <td class="border p-2 text-gray-600">${c.dayOfWeek || '-'}</td>
-                  <td class="border p-2 flex gap-2">
-                    <button onclick="selectCustomerForDetails('${c.id}')" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition">Select</button>
-                    <button onclick="payForCustomer('${c.id}')" class="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 transition">Pay</button>
+                  <td class="border p-2 flex flex-col gap-1 sm:flex-row sm:gap-2">
+                    <button onclick="selectCustomerForDetails('${c.id}')" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition w-full sm:w-auto">Select</button>
                   </td>
                 </tr>
               `).join('')}
             </tbody>
           </table>`;
           grid.innerHTML = table;
+      }
+          grid.innerHTML = table;
+
         // Pay button handler: select customer, switch to payment tab, and scroll to payment form
         function payForCustomer(customerId) {
-          // Set the customer in the payment dropdown
-          document.getElementById('payment-customer-id').value = customerId;
-          updateBalanceAndRepayment();
-          // Switch to payment tab
-          showTab('payment');
-          // Scroll to payment form
-          setTimeout(() => {
-            const paymentForm = document.getElementById('payment-form');
-            if (paymentForm) {
-              paymentForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-          }, 100);
-        }
+            // Set the customer in the payment dropdown
+            document.getElementById('payment-customer-id').value = customerId;
+            updateBalanceAndRepayment();
+            // Switch to payment tab
+            showTab('payment');
+            // Scroll to payment form
+            setTimeout(() => {
+                const paymentForm = document.getElementById('payment-form');
+                if (paymentForm) {
+                    paymentForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }, 100);
         }
 
         // Add this function to select a customer from the grid and show details
         function selectCustomerForDetails(customerId) {
-          document.getElementById('payment-customer-id').value = customerId;
-          updateBalanceAndRepayment();
+            document.getElementById('payment-customer-id').value = customerId;
+            updateBalanceAndRepayment();
         }
 
         // Clear customer grid on page load
         document.addEventListener('DOMContentLoaded', function() {
-          filterCustomersGrid();
+            filterCustomersGrid();
         });
         // Also call after addCustomer, removeWeek, addMoreWeeks, etc.
 
@@ -946,5 +947,21 @@ function deleteCustomer(customerId) {
             }
         }
     </script>
+    <!-- Mobile bottom nav bar -->
+    <div class="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 shadow-lg flex sm:hidden justify-around py-2">
+        <button onclick="showTab('customer')" id="mobile-customer-tab" class="flex-1 flex flex-col items-center text-xs font-semibold text-slate-700 focus:outline-none">
+            <span class="material-icons" style="font-size: 22px;">person_add</span>
+            Customer
+        </button>
+        <button onclick="showTab('payment')" id="mobile-payment-tab" class="flex-1 flex flex-col items-center text-xs font-semibold text-slate-700 focus:outline-none">
+            <span class="material-icons" style="font-size: 22px;">payments</span>
+            Payment
+        </button>
+        <button onclick="showTab('export')" id="mobile-export-tab" class="flex-1 flex flex-col items-center text-xs font-semibold text-slate-700 focus:outline-none">
+            <span class="material-icons" style="font-size: 22px;">file_download</span>
+            Export
+        </button>
+    </div>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </body>
 </html>
