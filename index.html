@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weekly Collection App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div>
+                <h1>Weekly Collection Dashboard</h1>
+                <p class="subtitle">Manage your weekly collections with ease</p>
+            </div>
+            <div class="header-buttons">
+                <button id="add-customer-btn"><i class="fas fa-plus"></i> Add Customer</button>
+                <button id="generate-report-btn"><i class="fas fa-download"></i> Generate Report</button>
+            </div>
+        </header>
+        <main>
+            <div class="week-navigation">
+                <button id="prev-week-btn"><i class="fas fa-chevron-left"></i> Prev Week</button>
+                <h3 id="week-range"></h3>
+                <button id="next-week-btn">Next Week <i class="fas fa-chevron-right"></i></button>
+            </div>
+            <div class="filter-section">
+                <div class="day-filters">
+
+                    <button class="day-filter active" data-day="Sunday">SUN</button>
+                    <button class="day-filter" data-day="Monday">MON</button>
+                    <button class="day-filter" data-day="Tuesday">TUE</button>
+                    <button class="day-filter" data-day="Wednesday">WED</button>
+                    <button class="day-filter" data-day="Thursday">THU</button>
+                    <button class="day-filter" data-day="Friday">FRI</button>
+                    <button class="day-filter" data-day="Saturday">SAT</button>
+                    <button class="day-filter" data-day="All">ALL</button>
+                </div>
+                <div class="search-filter">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="search-input" placeholder="Search by name, phone, or address">
+                </div>
+                <span id="selected-date-display"></span>
+                <button id="download-excel-btn"><i class="fas fa-file-excel"></i> Download Weekly Payment</button>
+                <button id="download-book-btn"><i class="fas fa-book"></i> Download Book</button>            </div>
+            <div class="grid-container">
+                <table id="customer-grid">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th style="display: none;">Day</th>
+                            <th>Balance Amount</th>
+                            <th>Amount Paid</th>
+                            <th>Actions</th>
+                            <th>Payment Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Customer data will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <div id="add-customer-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Add New Customer</h2>
+            <form id="add-customer-form">
+                <input type="text" id="customer-id" placeholder="Customer ID" readonly>
+                <input type="text" id="account-id-optional" placeholder="Account ID">
+                <input type="text" id="name" placeholder="Name" required>
+                <input type="tel" id="phone" placeholder="Phone Number" required>
+                <input type="tel" id="alternate-phone-number" placeholder="Alternate Phone Number">
+                <div id="address-dropdown" class="custom-dropdown-container">
+                    <div class="custom-dropdown-header">
+                        <span class="custom-dropdown-selected-value">Select or Add Address</span>
+                        <i class="fas fa-caret-down custom-dropdown-caret"></i>
+                    </div>
+                    <div class="custom-dropdown-list-container">
+                        <ul class="custom-dropdown-list">
+                            <li data-value="">Select or Add Address</li>
+                            <li data-value="add-new" class="add-new-address-btn">Add New Address</li>
+                        </ul>
+                    </div>
+                </div>
+                <input type="hidden" id="address" name="address" required>
+                <input type="text" id="new-address" placeholder="Enter New Address" style="display: none;">
+                <select id="day" required>
+                    <option value="">Select Day</option>
+                    <option value="Sunday">Sunday</option>
+                    <option value="Monday">Monday</option>
+                    <option value="Tuesday">Tuesday</option>
+                    <option value="Wednesday">Wednesday</option>
+                    <option value="Thursday">Thursday</option>
+                    <option value="Friday">Friday</option>
+                    <option value="Saturday">Saturday</option>
+                </select>
+
+                <input type="number" id="loan-amount" placeholder="Loan Amount" required>
+                <input type="number" id="total-payable-amount" placeholder="Total Payable Amount" required>
+                <input type="number" id="number-of-installments" placeholder="Number of Installments" required>
+                <input type="date" id="account-opening-date" required>
+                <button type="submit">Add Customer</button>
+                <button type="button" id="delete-customer-btn" class="delete-btn" style="display: none;">Delete Customer</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="transaction-history-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn transaction-history-close-btn">&times;</span>
+            <h2>Transaction History for <span id="history-customer-name"></span></h2>
+            <div class="history-summary">
+                <div class="highlighted-amounts">
+                    <p>Total Payable: <span id="history-total-payable" class="highlighted-amount"></span></p>
+                    <p>Balance Amount: <span id="history-balance-amount" class="highlighted-amount"></span></p>
+                    <p>Total Paid: <span id="total-paid-amount" class="highlighted-amount"></span></p>
+                </div>
+                <button id="whatsapp-share-btn" class="share-btn"><i class="fab fa-whatsapp"></i> Share on WhatsApp</button>
+            </div>
+            <div class="transaction-history-grid" style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Week No.</th>
+                            <th>Week</th>
+                            <th>Amount Paid</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transaction-history-table-body">
+                        <!-- Transaction history rows will be inserted here by JavaScript.
+                             Ensure each td has a data-label attribute for responsiveness. -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Daily Report Modal -->
+    <div id="daily-report-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn daily-report-close-btn">&times;</span>
+            <h2>Daily Report Summary</h2>
+            <div class="report-summary">
+                <p>Opening Balance: <input type="number" id="opening-balance-display" class="highlighted-amount editable-amount" value="0"></p>
+                <p>Opening Deposit: <input type="number" id="opening-deposit-display" class="highlighted-amount editable-amount" value="0"></p>
+                <p>Total Collection: <span id="total-collection-display" class="highlighted-amount">₹0</span></p>
+                <p>Total Loan Amount: <span id="total-loan-amount-display" class="highlighted-amount">₹0</span></p>
+                <p>Total Online Collection: <span id="total-online-collection-display" class="highlighted-amount">₹0</span></p>
+                <p>Expense: <input type="number" id="expense-display" class="highlighted-amount editable-amount" value="0"></p>
+                <p>Closing Balance: <span id="closing-balance-display" class="highlighted-amount" contenteditable="true">₹0</span></p>
+            </div>
+            <button id="save-summary-btn"><i class="fas fa-save"></i> Save</button>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
